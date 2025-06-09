@@ -1,8 +1,31 @@
 import streamlit as st
 import pandas as pd
 import io
+import hashlib
 
-st.title("CSV Filter Tool for User Data")
+st.title("Cohort Creation with Sarvam")
+
+# --- Authentication using st.secrets ---
+USER_CREDENTIALS = st.secrets["USER_CREDENTIALS"]
+
+def hash_password(password):
+    return hashlib.sha256(password.encode()).hexdigest()
+
+with st.sidebar:
+    st.header("Login")
+    username = st.text_input("Username")
+    password = st.text_input("Password", type="password")
+    login_button = st.button("Login")
+
+if login_button:
+    if username in USER_CREDENTIALS and USER_CREDENTIALS[username] == password:
+        st.session_state["authenticated"] = True
+        st.success(f"Welcome, {username}!")
+    else:
+        st.error("Invalid username or password")
+
+if not st.session_state.get("authenticated", False):
+    st.stop()
 
 # Upload Files
 master_file = st.file_uploader("Upload Master CSV/XLSX (required)", type=["csv", "xlsx"])
